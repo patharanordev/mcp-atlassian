@@ -420,6 +420,31 @@ class TestMCPProtocolIntegration:
         # Verify response
         assert response.status_code == 200
 
+    async def test_middleware_oauth_token_processing_sse(self):
+        """Test UserTokenMiddleware OAuth token processing for SSE path."""
+        app = MagicMock()
+        mcp_server = MagicMock()
+        settings_mock = MagicMock()
+        settings_mock.streamable_http_path = "/mcp"
+        settings_mock.sse_path = "/sse"
+        mcp_server.settings = settings_mock
+        middleware = UserTokenMiddleware(app, mcp_server_ref=mcp_server)
+
+        request = MockFastMCP.create_request()
+        request.url.path = "/sse"
+        request.method = "GET"
+        request.headers = {"Authorization": "Bearer test-oauth-token-12345"}
+
+        async def mock_call_next(req):
+            assert hasattr(req.state, "user_atlassian_token")
+            assert req.state.user_atlassian_token == "test-oauth-token-12345"
+            assert req.state.user_atlassian_auth_type == "oauth"
+            assert req.state.user_atlassian_email is None
+            return JSONResponse({"status": "ok"})
+
+        response = await middleware.dispatch(request, mock_call_next)
+        assert response.status_code == 200
+
     async def test_middleware_pat_token_processing(self):
         """Test UserTokenMiddleware PAT token extraction and processing."""
         # Create middleware instance

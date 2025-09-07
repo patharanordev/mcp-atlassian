@@ -232,12 +232,23 @@ class UserTokenMiddleware(BaseHTTPMiddleware):
             )
             return await call_next(request)
 
-        mcp_path = mcp_server_instance.settings.streamable_http_path.rstrip("/")
         request_path = request.url.path.rstrip("/")
-        logger.debug(
-            f"UserTokenMiddleware.dispatch: Comparing request_path='{request_path}' with mcp_path='{mcp_path}'. Request method='{request.method}'"
+        streamable_path = getattr(
+            mcp_server_instance.settings, "streamable_http_path", None
         )
-        if request_path == mcp_path and request.method == "POST":
+        sse_path = getattr(mcp_server_instance.settings, "sse_path", None)
+        mcp_paths: list[str] = []
+        if streamable_path:
+            mcp_paths.append(streamable_path.rstrip("/"))
+        if sse_path:
+            mcp_paths.append(sse_path.rstrip("/"))
+        logger.debug(
+            "UserTokenMiddleware.dispatch: Comparing request_path='%s' with mcp_paths=%s. Request method='%s'",
+            request_path,
+            mcp_paths,
+            request.method,
+        )
+        if request_path in mcp_paths and request.method in {"POST", "GET"}:
             auth_header = request.headers.get("Authorization")
             cloud_id_header = request.headers.get("X-Atlassian-Cloud-Id")
 
