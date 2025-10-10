@@ -1,0 +1,21 @@
+{
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "source": {
+    "path": "src/mcp_atlassian/servers/main.py",
+    "entrypoint": "main_mcp"
+  },
+  "environment": {
+    "python": ">=3.10",
+    "requirements": "pyproject.toml",
+    "project": "."
+  },
+  "deployment": {
+    "transport": "streamable-http",
+    "host": "0.0.0.0",
+    "port": 8000,
+    "path": "/app/src/mcp_atlassian/servers",
+    "log_level": "DEBUG",
+    "cwd": "/app",
+    "args": ["--workers", "4"]
+  }
+}
