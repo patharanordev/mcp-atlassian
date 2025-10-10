@@ -339,4 +339,4 @@ logger.info("Added /healthz endpoint for Kubernetes probes")
 
 
 if __name__ == "__main__":
-    main_mcp.run()
+    main_mcp.run(transport="streamable-http", host="0.0.0.0", port=8000)
