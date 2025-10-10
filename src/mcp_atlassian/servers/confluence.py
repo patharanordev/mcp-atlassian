@@ -1,10 +1,12 @@
 """Confluence FastMCP server instance and tool definitions."""
 
+import os
 import json
 import logging
 from typing import Annotated
 
 from fastmcp import Context, FastMCP
+from fastmcp.server.auth.providers.jwt import StaticTokenVerifier
 from pydantic import BeforeValidator, Field
 
 from mcp_atlassian.exceptions import MCPAtlassianAuthenticationError
@@ -15,11 +17,16 @@ from mcp_atlassian.utils.decorators import (
 
 logger = logging.getLogger(__name__)
 
-confluence_mcp = FastMCP(
-    name="Confluence MCP Service",
-    instructions="Provides tools for interacting with Atlassian Confluence.",
-)
-
+mcp_name = "Confluence MCP Service"
+mcp_instructions = "Provides tools for interacting with Atlassian Confluence."
+auth_token = os.environ.get("MCP_AUTH_TOKEN")
+if auth_token:
+    auth = StaticTokenVerifier(tokens={
+        auth_token: {"sub": "dev-user", "scope": ["tools:read"]},
+    })
+    confluence_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions, auth=auth)
+else:
+    confluence_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions)
 
 @confluence_mcp.tool(tags={"confluence", "read"})
 async def search(

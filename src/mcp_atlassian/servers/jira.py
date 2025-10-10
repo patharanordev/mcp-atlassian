@@ -1,10 +1,12 @@
 """Jira FastMCP server instance and tool definitions."""
 
+import os
 import json
 import logging
 from typing import Annotated, Any
 
 from fastmcp import Context, FastMCP
+from fastmcp.server.auth.providers.jwt import StaticTokenVerifier
 from pydantic import Field
 from requests.exceptions import HTTPError
 
@@ -16,10 +18,16 @@ from mcp_atlassian.utils.decorators import check_write_access
 
 logger = logging.getLogger(__name__)
 
-jira_mcp = FastMCP(
-    name="Jira MCP Service",
-    instructions="Provides tools for interacting with Atlassian Jira.",
-)
+mcp_name = "Jira MCP Service"
+mcp_instructions = "Provides tools for interacting with Atlassian Jira."
+auth_token = os.environ.get("MCP_AUTH_TOKEN")
+if auth_token:
+    auth = StaticTokenVerifier(tokens={
+        auth_token: {"sub": "dev-user", "scope": ["tools:read"]},
+    })
+    jira_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions, auth=auth)
+else:
+    jira_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions)
 
 
 @jira_mcp.tool(tags={"jira", "read"})
