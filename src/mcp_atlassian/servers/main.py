@@ -190,6 +190,7 @@ class AtlassianMCP(FastMCP[MainAppContext]):
         path: str | None = None,
         middleware: list[Middleware] | None = None,
         transport: Literal["streamable-http", "sse"] = "streamable-http",
+        **kwargs,
     ) -> "Starlette":
         user_token_mw = Middleware(UserTokenMiddleware, mcp_server_ref=self)
         final_middleware_list = [user_token_mw]
@@ -326,8 +327,8 @@ class UserTokenMiddleware(BaseHTTPMiddleware):
 
 
 main_mcp = AtlassianMCP(name="Atlassian MCP", lifespan=main_lifespan)
-main_mcp.mount("jira", jira_mcp)
-main_mcp.mount("confluence", confluence_mcp)
+main_mcp.mount(jira_mcp, prefix="jira")
+main_mcp.mount(confluence_mcp, prefix="confluence")
 
 
 @main_mcp.custom_route("/healthz", methods=["GET"], include_in_schema=False)
