@@ -6,7 +6,6 @@
   },
   "environment": {
     "python": ">=3.10",
-    "requirements": "pyproject.toml",
     "project": "."
   },
   "deployment": {
@@ -15,7 +14,6 @@
     "port": 8000,
     "path": "/app/src/mcp_atlassian/servers",
     "log_level": "DEBUG",
-    "cwd": "/app",
-    "args": ["--workers", "4"]
+    "cwd": "/app"
   }
 }
