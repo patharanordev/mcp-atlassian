@@ -24,9 +24,9 @@ from mcp_atlassian.utils.io import is_read_only_mode
 from mcp_atlassian.utils.logging import mask_sensitive
 from mcp_atlassian.utils.tools import get_enabled_tools, should_include_tool
 
-from .confluence import confluence_mcp
-from .context import MainAppContext
-from .jira import jira_mcp
+from mcp_atlassian.servers.confluence import confluence_mcp
+from mcp_atlassian.servers.context import MainAppContext
+from mcp_atlassian.servers.jira import jira_mcp
 
 logger = logging.getLogger("mcp-atlassian.server.main")
 
@@ -334,5 +334,8 @@ main_mcp.mount("confluence", confluence_mcp)
 async def _health_check_route(request: Request) -> JSONResponse:
     return await health_check(request)
 
-
 logger.info("Added /healthz endpoint for Kubernetes probes")
+
+
+if __name__ == "__main__":
+    main_mcp.run(transport="http", host="0.0.0.0", port=8000)
