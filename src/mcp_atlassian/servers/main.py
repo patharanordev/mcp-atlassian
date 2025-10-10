@@ -27,6 +27,7 @@ from mcp_atlassian.utils.tools import get_enabled_tools, should_include_tool
 from mcp_atlassian.servers.confluence import confluence_mcp
 from mcp_atlassian.servers.context import MainAppContext
 from mcp_atlassian.servers.jira import jira_mcp
+from mcp_atlassian.servers.middlewares.apikey import ApiKeyMiddleware
 
 logger = logging.getLogger("mcp-atlassian.server.main")
 
@@ -196,6 +197,12 @@ class AtlassianMCP(FastMCP[MainAppContext]):
         final_middleware_list = [user_token_mw]
         if middleware:
             final_middleware_list.extend(middleware)
+
+        # Validate x-api-key header
+        final_middleware_list.extend([
+            Middleware(ApiKeyMiddleware, x_api_key_header="x-api-key", scheme="Bearer")
+        ])
+
         app = super().http_app(
             path=path, middleware=final_middleware_list, transport=transport
         )
@@ -239,17 +246,18 @@ class UserTokenMiddleware(BaseHTTPMiddleware):
             f"UserTokenMiddleware.dispatch: Comparing request_path='{request_path}' with mcp_path='{mcp_path}'. Request method='{request.method}'"
         )
         if request_path == mcp_path and request.method == "POST":
-            auth_header = request.headers.get("Authorization")
+            auth_header = request.headers.get("X-Atlassian-Authorization")
             cloud_id_header = request.headers.get("X-Atlassian-Cloud-Id")
 
-            token_for_log = mask_sensitive(
-                auth_header.split(" ", 1)[1].strip()
-                if auth_header and " " in auth_header
-                else auth_header
-            )
-            logger.debug(
-                f"UserTokenMiddleware: Path='{request.url.path}', AuthHeader='{mask_sensitive(auth_header)}', ParsedToken(masked)='{token_for_log}', CloudId='{cloud_id_header}'"
-            )
+            if auth_header:
+                token_for_log = mask_sensitive(
+                    auth_header.split(" ", 1)[1].strip()
+                    if auth_header and " " in auth_header
+                    else auth_header
+                )
+                logger.debug(
+                    f"UserTokenMiddleware: Path='{request.url.path}', AuthHeader='{mask_sensitive(auth_header)}', ParsedToken(masked)='{token_for_log}', CloudId='{cloud_id_header}'"
+                )
 
             # Extract and save cloudId if provided
             if cloud_id_header and cloud_id_header.strip():
