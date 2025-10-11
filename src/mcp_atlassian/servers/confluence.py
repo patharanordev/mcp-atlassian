@@ -19,14 +19,15 @@ logger = logging.getLogger(__name__)
 
 mcp_name = "Confluence MCP Service"
 mcp_instructions = "Provides tools for interacting with Atlassian Confluence."
-auth_token = os.environ.get("MCP_AUTH_TOKEN")
-if auth_token:
-    auth = StaticTokenVerifier(tokens={
-        auth_token: {"sub": "dev-user", "scope": ["tools:read"]},
-    })
-    confluence_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions, auth=auth)
-else:
-    confluence_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions)
+# auth_token = os.environ.get("MCP_AUTH_TOKEN")
+# if auth_token:
+#     auth = StaticTokenVerifier(tokens={
+#         auth_token: {"sub": "dev-user", "scope": ["tools:read"]},
+#     })
+#     confluence_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions, auth=auth)
+# else:
+#     confluence_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions)
+confluence_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions)
 
 @confluence_mcp.tool(tags={"confluence", "read"})
 async def search(

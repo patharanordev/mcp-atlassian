@@ -20,15 +20,15 @@ logger = logging.getLogger(__name__)
 
 mcp_name = "Jira MCP Service"
 mcp_instructions = "Provides tools for interacting with Atlassian Jira."
-auth_token = os.environ.get("MCP_AUTH_TOKEN")
-if auth_token:
-    auth = StaticTokenVerifier(tokens={
-        auth_token: {"sub": "dev-user", "scope": ["tools:read"]},
-    })
-    jira_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions, auth=auth)
-else:
-    jira_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions)
-
+# auth_token = os.environ.get("MCP_AUTH_TOKEN")
+# if auth_token:
+#     auth = StaticTokenVerifier(tokens={
+#         auth_token: {"sub": "dev-user", "scope": ["tools:read"]},
+#     })
+#     jira_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions, auth=auth)
+# else:
+#     jira_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions)
+jira_mcp = FastMCP(name=mcp_name, instructions=mcp_instructions)
 
 @jira_mcp.tool(tags={"jira", "read"})
 async def get_user_profile(
