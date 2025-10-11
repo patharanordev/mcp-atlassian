@@ -193,10 +193,8 @@ class AtlassianMCP(FastMCP[MainAppContext]):
         transport: Literal["streamable-http", "sse"] = "streamable-http",
         **kwargs,
     ) -> "Starlette":
-        service_api_key = Middleware(ApiKeyMiddleware, x_api_key_header="x-api-key", scheme="Bearer")
         user_token_mw = Middleware(UserTokenMiddleware, mcp_server_ref=self)
         final_middleware_list = [
-            service_api_key,
             user_token_mw
         ]
         if middleware:
