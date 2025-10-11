@@ -12,6 +12,6 @@ class ApiKeyMiddleware(BaseHTTPMiddleware):
         token = request.headers.get(self.x_api_key)
         if token:
             hdrs = list(request.scope["headers"])
-            hdrs.append((b"authorization", f"{self.scheme} {token}".encode()))
+            hdrs.append((b"Authorization", f"{self.scheme} {token}".encode()))
             request.scope["headers"] = hdrs
         return await call_next(request)

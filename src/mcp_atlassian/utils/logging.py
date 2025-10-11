@@ -82,7 +82,7 @@ def get_masked_session_headers(headers: dict[str, str]) -> dict[str, str]:
 
     for key, value in headers.items():
         if key in sensitive_headers:
-            if key == "Authorization":
+            if key.lower() == "authorization":
                 # Preserve auth type but mask the credentials
                 if value.startswith("Basic "):
                     masked_headers[key] = f"Basic {mask_sensitive(value[6:])}"
